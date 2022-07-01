@@ -1,7 +1,16 @@
+// doctest-util
+// Copyright(c) 2022 Borislav Stanimirov
+//
+// SPDX-License-Identifier: MIT
+// Distributed under the MIT Software License
+// See accompanying file LICENSE.txt or https://opensource.org/licenses/MIT
+//
 #pragma once
-#include <functional>
+#include <doctest/doctest.h>
 
-namespace itlib
+namespace doctest
+{
+namespace util
 {
 
 template <typename Tag>
@@ -18,13 +27,10 @@ public:
         int m_asgn = 0; // move assigned
         int living = 0; // total living
 
-        std::function<void(const stats&)> at_end;
-
         stats* parent = nullptr;
 
         ~stats()
         {
-            if (at_end) at_end(*this);
         }
     };
 
@@ -45,4 +51,5 @@ public:
     }
 };
 
+}
 }
