@@ -30,6 +30,7 @@ macro(add_doctest_lib_test test lib)
         NAME ${lib}-${test}
         TARGET test-${lib}-${test}
         LIBRARIES
+            # doctest-util
             doctest-main
             ${lib}
             ${ARG_LIBRARIES}
