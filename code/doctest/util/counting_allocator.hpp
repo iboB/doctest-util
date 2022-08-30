@@ -9,71 +9,93 @@
 #include <doctest/doctest.h>
 
 #include <memory>
+#include <type_traits>
 
 namespace doctest
 {
 namespace util
 {
 
-template <typename T>
-class counting_allocator : private std::allocator<T>
+class counting_allocator_payload
 {
-    using super = std::allocator<T>;
 public:
-    size_t allocations = 0;
-    size_t deallocations = 0;
-    size_t allocated_bytes = 0;
-    size_t deallocated_bytes = 0;
+    counting_allocator_payload() = default;
+    counting_allocator_payload(const counting_allocator_payload&) = delete;
+    counting_allocator_payload& operator=(const counting_allocator_payload&) = delete;
+    counting_allocator_payload(counting_allocator_payload&&) = delete;
+    counting_allocator_payload& operator=(counting_allocator_payload&&) = delete;
 
-    counting_allocator() = default;
-
-    // do nothing when copied
-    // preserve original's values
-    counting_allocator(const counting_allocator&) {}
-    counting_allocator& operator=(const counting_allocator&) { return *this; }
-
-    counting_allocator(counting_allocator&& other)
-    {
-        take_from(other);
-    }
-    counting_allocator& operator=(counting_allocator&& other)
-    {
-        take_from(other);
-        return *this;
-    }
-
-    T* allocate(size_t n, const void* h = nullptr)
-    {
-        ++allocations;
-        allocated_bytes += n * sizeof(T);
-        return super::allocate(n);
-    }
-
-    void deallocate(T* p, size_t n)
-    {
-        ++deallocations;
-        deallocated_bytes += n * sizeof(T);
-        return super::deallocate(p, n);
-    }
-
-    ~counting_allocator()
+    ~counting_allocator_payload()
     {
         CHECK(allocations == deallocations);
         CHECK(allocated_bytes == deallocated_bytes);
     }
 
-private:
-    void take_from(counting_allocator& other)
+    size_t allocations = 0;
+    size_t deallocations = 0;
+    size_t allocated_bytes = 0;
+    size_t deallocated_bytes = 0;
+};
+
+template <typename T, template <typename> class Super>
+class basic_counting_allocator : private Super<T>
+{
+    // never null this pointer is never null except in moved-out allocators
+    // such should be inaccessible anyway
+    std::shared_ptr<counting_allocator_payload> m_payload;
+public:
+    using super_type = Super<T>;
+    using super_type::value_type;
+
+    template <typename... Args, std::enable_if_t<std::is_constructible_v<super_type, Args...>, int> = 0>
+    basic_counting_allocator(Args&&... args)
+        : super_type(std::forward<Args>(args)...)
+        , m_payload(std::make_shared<counting_allocator_payload>())
+    {}
+
+    // explicit casts
+    super_type& super() { return *this; }
+    const super_type& super() const { return *this; }
+
+    basic_counting_allocator(const basic_counting_allocator&) = default;
+    basic_counting_allocator& operator=(const basic_counting_allocator&) = default;
+
+    // intentionally don't define these
+    // always copy
+    // counting_allocator(counting_allocator&& other) noexcept;
+    // counting_allocator& operator=(counting_allocator&& other) noexcept;
+
+    // rebind
+    template <typename U>
+    basic_counting_allocator(const basic_counting_allocator<U, Super>& other)
+        : super_type(other.super())
+        , m_payload(other.payload_ptr())
+    {}
+
+    const counting_allocator_payload& payload() const { return *m_payload; }
+    const std::shared_ptr<counting_allocator_payload>& payload_ptr() const { return m_payload; }
+
+    T* allocate(size_t n, const void* = nullptr)
     {
-        allocations = other.allocations;
-        deallocations = other.deallocations;
-        allocated_bytes = other.allocated_bytes;
-        deallocated_bytes = other.deallocated_bytes;
-        other.allocations = 0;
-        other.deallocations = 0;
-        other.allocated_bytes = 0;
-        other.deallocated_bytes = 0;
+        auto& pl = *m_payload;
+        ++pl.allocations;
+        pl.allocated_bytes += n * sizeof(T);
+        return super_type::allocate(n);
     }
+
+    void deallocate(T* p, size_t n)
+    {
+        auto& pl = *m_payload;
+        ++pl.deallocations;
+        pl.deallocated_bytes += n * sizeof(T);
+        return super_type::deallocate(p, n);
+    }
+};
+
+template <typename T>
+struct counting_allocator : public basic_counting_allocator<T, std::allocator>
+{
+    using basic_counting_allocator<T, std::allocator>::basic_counting_allocator;
 };
 
 }
