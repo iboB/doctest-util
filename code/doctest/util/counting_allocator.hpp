@@ -47,7 +47,7 @@ public:
     using super_type = Super<T>;
     using super_type::value_type;
 
-    template <typename... Args, std::enable_if_t<std::is_constructible_v<super_type, Args...>, int> = 0>
+    template <typename... Args, typename std::enable_if<std::is_constructible<super_type, Args...>::value, int>::type = 0>
     basic_counting_allocator(Args&&... args)
         : super_type(std::forward<Args>(args)...)
         , m_payload(std::make_shared<counting_allocator_payload>())
