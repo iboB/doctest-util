@@ -45,7 +45,7 @@ class basic_counting_allocator : private Super<T>
     std::shared_ptr<counting_allocator_payload> m_payload;
 public:
     using super_type = Super<T>;
-    using super_type::value_type;
+    using typename super_type::value_type;
 
     template <typename... Args, typename std::enable_if<std::is_constructible<super_type, Args...>::value, int>::type = 0>
     basic_counting_allocator(Args&&... args)
