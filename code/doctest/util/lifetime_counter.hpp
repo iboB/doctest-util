@@ -25,6 +25,7 @@ public:
     int m_ctr = 0; // move constructed
     int m_asgn = 0; // move assigned
     int living = 0; // total living
+    int total = 0; // total constructed
 
     template <typename F>
     void for_all(F&& f)
@@ -43,7 +44,8 @@ public:
             && copies == other.copies
             && m_ctr == other.m_ctr
             && m_ctr == other.m_asgn
-            && living == other.living;
+            && living == other.living
+            && total == other.total;
     }
 protected:
     lifetime_stats* parent = nullptr;
@@ -76,6 +78,7 @@ public:
         m_top_stats->for_all([](impl::lifetime_stats& s) {
             ++s.d_ctr;
             ++s.living;
+            ++s.total;
         });
     }
 
@@ -85,6 +88,7 @@ public:
             ++s.c_ctr;
             ++s.copies;
             ++s.living;
+            ++s.total;
         });
     }
 
@@ -102,6 +106,7 @@ public:
         m_top_stats->for_all([](impl::lifetime_stats& s) {
             ++s.m_ctr;
             ++s.living;
+            ++s.total;
         });
     }
 

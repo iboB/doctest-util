@@ -16,16 +16,19 @@ TEST_CASE("bare lifetime counter")
     lc a;
     CHECK(lc_root.living == 1);
     CHECK(lc_root.d_ctr == 1);
+    CHECK(lc_root.total == 1);
 
     auto b = a;
     CHECK(lc_root.c_ctr == 1);
     CHECK(lc_root.copies == 1);
     CHECK(lc_root.living == 2);
+    CHECK(lc_root.total == 2);
 
     auto c = std::move(b);
     CHECK(lc_root.m_ctr == 1);
     CHECK(lc_root.copies == 1);
     CHECK(lc_root.living == 3);
+    CHECK(lc_root.total == 3);
 
     a = c;
     CHECK(lc_root.c_asgn == 1);
@@ -51,6 +54,7 @@ TEST_CASE("bare lifetime counter")
             CHECK(local.living == 2);
         }
         CHECK(local.living == 1);
+        CHECK(local.total == 2);
     }
 
     CHECK(lc_root.d_ctr == 2);
@@ -60,6 +64,7 @@ TEST_CASE("bare lifetime counter")
     CHECK(lc_root.m_ctr == 1);
     CHECK(lc_root.m_asgn == 1);
     CHECK(lc_root.living == 3);
+    CHECK(lc_root.total == 5);
 
     lci::lifetime_stats empty_stats;
     CHECK(lci_root == empty_stats);
