@@ -34,14 +34,15 @@ mark_as_advanced(DOCTEST_UTIL_BUILD_TESTS)
 
 #######################################
 # packages
-CPMAddPackage(gh:iboB/doctest-lib@2.4.9)
+CPMAddPackage(gh:iboB/doctest-lib@2.4.9a)
 
 #######################################
 # c++
 
 add_library(doctest-util INTERFACE)
+add_library(doctest::util ALIAS doctest-util)
 target_include_directories(doctest-util INTERFACE code)
-target_link_libraries(doctest-util INTERFACE doctest-headers)
+target_link_libraries(doctest-util INTERFACE doctest::headers)
 
 if(ICM_DEV_MODE)
     add_subdirectory(scratch)
