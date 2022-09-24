@@ -1,9 +1,5 @@
-# doctest-util
-# Copyright (c) 2022 Borislav Stanimirov
-#
+# Copyright (c) Borislav Stanimirov
 # SPDX-License-Identifier: MIT
-# Distributed under the MIT Software License
-# See accompanying file LICENSE.txt or https://opensource.org/licenses/MIT
 #
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
