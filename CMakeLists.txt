@@ -10,12 +10,11 @@ include(./get_cpm.cmake)
 
 #######################################
 # cmake lib
-CPMAddPackage(gh:iboB/icm@1.3.4)
+CPMAddPackage(gh:iboB/icm@1.4.0)
 
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH}
-    ${icm_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake
+list(APPEND CMAKE_MODULE_PATH
+    "${icm_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
 )
 
 include(icm_dev_mode)

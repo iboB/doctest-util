@@ -15,13 +15,14 @@
 # Optional named args:
 #   * SOURCES ... - explicitly specify sources
 #   * LIBRARIES ... - specify additional librarires
+#   * LABELS ... - specify test labels
 #
 # Notes:
 # `add_doctest_lib_test(core mylib test_core.cpp)` will create:
 #   * named test: mylib-core
 #   * executable target: test-mylib-core
-macro(add_doctest_lib_test test lib)
-    cmake_parse_arguments(ARG "" "" "SOURCES;LIBRARIES" ${ARGN})
+function(add_doctest_lib_test test lib)
+    cmake_parse_arguments(ARG "" "" "SOURCES;LIBRARIES;LABELS" ${ARGN})
     icm_add_test(
         NAME ${lib}-${test}
         TARGET test-${lib}-${test}
@@ -33,6 +34,7 @@ macro(add_doctest_lib_test test lib)
         SOURCES
             ${ARG_UNPARSED_ARGUMENTS}
             ${ARG_SOURCES}
+        LABELS ${ARG_LABELS}
         FOLDER test
     )
-endmacro()
+endfunction()
