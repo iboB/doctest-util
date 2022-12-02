@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 //
 #pragma once
+#include "atomic_relaxed_counter.hpp"
 #include <doctest/doctest.h>
 
 #include <memory>
@@ -27,10 +28,10 @@ public:
         CHECK(allocated_bytes == deallocated_bytes);
     }
 
-    size_t allocations = 0;
-    size_t deallocations = 0;
-    size_t allocated_bytes = 0;
-    size_t deallocated_bytes = 0;
+    atomic_relaxed_counter<size_t> allocations = 0;
+    atomic_relaxed_counter<size_t> deallocations = 0;
+    atomic_relaxed_counter<size_t> allocated_bytes = 0;
+    atomic_relaxed_counter<size_t> deallocated_bytes = 0;
 };
 
 template <typename T, template <typename> class Super>
