@@ -15,14 +15,14 @@ namespace impl
 class lifetime_stats
 {
 public:
-    atomic_relaxed_counter<int> d_ctr = 0; // default construct
-    atomic_relaxed_counter<int> c_ctr = 0; // copy constructed
-    atomic_relaxed_counter<int> c_asgn = 0; // copy assigned
-    atomic_relaxed_counter<int> copies = 0; // total copies
-    atomic_relaxed_counter<int> m_ctr = 0; // move constructed
-    atomic_relaxed_counter<int> m_asgn = 0; // move assigned
-    atomic_relaxed_counter<int> living = 0; // total living
-    atomic_relaxed_counter<int> total = 0; // total constructed
+    atomic_relaxed_counter<int> d_ctr{0}; // default construct
+    atomic_relaxed_counter<int> c_ctr{0}; // copy constructed
+    atomic_relaxed_counter<int> c_asgn{0}; // copy assigned
+    atomic_relaxed_counter<int> copies{0}; // total copies
+    atomic_relaxed_counter<int> m_ctr{0}; // move constructed
+    atomic_relaxed_counter<int> m_asgn{0}; // move assigned
+    atomic_relaxed_counter<int> living{0}; // total living
+    atomic_relaxed_counter<int> total{0}; // total constructed
 
     template <typename F>
     void for_all(F&& f)

@@ -28,10 +28,10 @@ public:
         CHECK(allocated_bytes == deallocated_bytes);
     }
 
-    atomic_relaxed_counter<size_t> allocations = 0;
-    atomic_relaxed_counter<size_t> deallocations = 0;
-    atomic_relaxed_counter<size_t> allocated_bytes = 0;
-    atomic_relaxed_counter<size_t> deallocated_bytes = 0;
+    atomic_relaxed_counter<size_t> allocations{0};
+    atomic_relaxed_counter<size_t> deallocations{0};
+    atomic_relaxed_counter<size_t> allocated_bytes{0};
+    atomic_relaxed_counter<size_t> deallocated_bytes{0};
 };
 
 template <typename T, template <typename> class Super>
