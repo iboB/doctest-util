@@ -10,9 +10,20 @@ namespace doctest
 namespace util
 {
 
+struct lifetime_stats {
+    int d_ctr{0}; // default construct
+    int c_ctr{0}; // copy constructed
+    int c_asgn{0}; // copy assigned
+    int copies{0}; // total copies
+    int m_ctr{0}; // move constructed
+    int m_asgn{0}; // move assigned
+    int living{0}; // total living
+    int total{0}; // total constructed
+};
+
 namespace impl
 {
-class lifetime_stats
+class basic_lifetime_stats
 {
 public:
     atomic_relaxed_counter<int> d_ctr{0}; // default construct
@@ -33,7 +44,7 @@ public:
         }
     }
 
-    bool operator==(const lifetime_stats& other) const
+    bool operator==(const basic_lifetime_stats& other) const
     {
         return d_ctr == other.d_ctr
             && c_ctr == other.c_ctr
@@ -44,8 +55,21 @@ public:
             && living == other.living
             && total == other.total;
     }
+
+    lifetime_stats checkpoint() const {
+        return {
+            d_ctr.load(),
+            c_ctr.load(),
+            c_asgn.load(),
+            copies.load(),
+            m_ctr.load(),
+            m_ctr.load(),
+            living.load(),
+            total.load(),
+        };
+    }
 protected:
-    lifetime_stats* parent = nullptr;
+    basic_lifetime_stats* parent = nullptr;
 };
 }
 
@@ -53,7 +77,7 @@ template <typename Tag>
 class lifetime_counter
 {
 public:
-    struct lifetime_stats : public impl::lifetime_stats
+    struct lifetime_stats : public impl::basic_lifetime_stats
     {
         lifetime_stats()
         {
@@ -68,11 +92,11 @@ public:
     };
 
     static const lifetime_stats& root_lifetime_stats() { return m_root_stats; }
-    static const impl::lifetime_stats& top_lifetime_stats() { return *m_top_stats; }
+    static const impl::basic_lifetime_stats& top_lifetime_stats() { return *m_top_stats; }
 
     lifetime_counter()
     {
-        m_top_stats->for_all([](impl::lifetime_stats& s) {
+        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.d_ctr;
             ++s.living;
             ++s.total;
@@ -81,7 +105,7 @@ public:
 
     lifetime_counter(const lifetime_counter&)
     {
-        m_top_stats->for_all([](impl::lifetime_stats& s) {
+        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.c_ctr;
             ++s.copies;
             ++s.living;
@@ -91,7 +115,7 @@ public:
 
     lifetime_counter& operator=(const lifetime_counter&)
     {
-        m_top_stats->for_all([](impl::lifetime_stats& s) {
+        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.c_asgn;
             ++s.copies;
         });
@@ -100,7 +124,7 @@ public:
 
     lifetime_counter(lifetime_counter&&)
     {
-        m_top_stats->for_all([](impl::lifetime_stats& s) {
+        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.m_ctr;
             ++s.living;
             ++s.total;
@@ -109,33 +133,35 @@ public:
 
     lifetime_counter& operator=(lifetime_counter&&)
     {
-        m_top_stats->for_all([](impl::lifetime_stats& s) {
+        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.m_asgn;
         });
         return *this;
     }
     ~lifetime_counter()
     {
-        m_top_stats->for_all([](impl::lifetime_stats& s) {
+        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             --s.living;
         });
     }
 
 private:
-    static impl::lifetime_stats* m_top_stats;
+    static impl::basic_lifetime_stats* m_top_stats;
     static lifetime_stats m_root_stats;
 };
 
 template <typename T>
-typename impl::lifetime_stats* lifetime_counter<T>::m_top_stats;
+typename impl::basic_lifetime_stats* lifetime_counter<T>::m_top_stats;
 template <typename T>
 typename lifetime_counter<T>::lifetime_stats lifetime_counter<T>::m_root_stats;
 
 struct lifetime_counter_sentry {
-    const impl::lifetime_stats& stats;
-    lifetime_counter_sentry(const impl::lifetime_stats& s) : stats(s) {}
+    const impl::basic_lifetime_stats& stats;
+    lifetime_counter_sentry(const impl::basic_lifetime_stats& s) : stats(s) {}
     ~lifetime_counter_sentry() { CHECK(stats.living == 0); }
 };
+
+
 
 }
 }
