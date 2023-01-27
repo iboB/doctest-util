@@ -66,6 +66,6 @@ TEST_CASE("bare lifetime counter")
     CHECK(lc_root.living == 3);
     CHECK(lc_root.total == 5);
 
-    lci::lifetime_stats empty_stats;
-    CHECK(lci_root == empty_stats);
+    doctest::util::lifetime_stats empty_stats;
+    CHECK(lci_root.checkpoint() == empty_stats);
 }

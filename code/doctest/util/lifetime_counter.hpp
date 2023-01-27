@@ -19,6 +19,18 @@ struct lifetime_stats {
     int m_asgn{0}; // move assigned
     int living{0}; // total living
     int total{0}; // total constructed
+
+    bool operator==(const lifetime_stats& other) const
+    {
+        return d_ctr == other.d_ctr
+            && c_ctr == other.c_ctr
+            && c_asgn == other.c_asgn
+            && copies == other.copies
+            && m_ctr == other.m_ctr
+            && m_asgn == other.m_asgn
+            && living == other.living
+            && total == other.total;
+    }
 };
 
 namespace impl
@@ -44,18 +56,6 @@ public:
         }
     }
 
-    bool operator==(const basic_lifetime_stats& other) const
-    {
-        return d_ctr == other.d_ctr
-            && c_ctr == other.c_ctr
-            && c_asgn == other.c_asgn
-            && copies == other.copies
-            && m_ctr == other.m_ctr
-            && m_ctr == other.m_asgn
-            && living == other.living
-            && total == other.total;
-    }
-
     lifetime_stats checkpoint() const {
         return {
             d_ctr.load(),
@@ -63,7 +63,7 @@ public:
             c_asgn.load(),
             copies.load(),
             m_ctr.load(),
-            m_ctr.load(),
+            m_asgn.load(),
             living.load(),
             total.load(),
         };
