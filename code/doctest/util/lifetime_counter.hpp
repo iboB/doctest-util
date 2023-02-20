@@ -20,7 +20,7 @@ struct lifetime_stats {
     int living{0}; // total living
     int total{0}; // total constructed
 
-    bool operator==(const lifetime_stats& other) const
+    bool operator==(const lifetime_stats& other) const noexcept
     {
         return d_ctr == other.d_ctr
             && c_ctr == other.c_ctr
@@ -56,7 +56,7 @@ public:
         }
     }
 
-    lifetime_stats checkpoint() const {
+    lifetime_stats checkpoint() const noexcept {
         return {
             d_ctr.load(),
             c_ctr.load(),
@@ -79,22 +79,22 @@ class lifetime_counter
 public:
     struct lifetime_stats : public impl::basic_lifetime_stats
     {
-        lifetime_stats()
+        lifetime_stats() noexcept
         {
             parent = lifetime_counter::m_top_stats;
             lifetime_counter::m_top_stats = this;
         }
 
-        ~lifetime_stats()
+        ~lifetime_stats() noexcept
         {
             lifetime_counter::m_top_stats = parent;
         }
     };
 
-    static const lifetime_stats& root_lifetime_stats() { return m_root_stats; }
-    static const impl::basic_lifetime_stats& top_lifetime_stats() { return *m_top_stats; }
+    static const lifetime_stats& root_lifetime_stats() noexcept { return m_root_stats; }
+    static const impl::basic_lifetime_stats& top_lifetime_stats() noexcept { return *m_top_stats; }
 
-    lifetime_counter()
+    lifetime_counter() noexcept
     {
         m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.d_ctr;
@@ -103,7 +103,7 @@ public:
         });
     }
 
-    lifetime_counter(const lifetime_counter&)
+    lifetime_counter(const lifetime_counter&) noexcept
     {
         m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.c_ctr;
@@ -113,7 +113,7 @@ public:
         });
     }
 
-    lifetime_counter& operator=(const lifetime_counter&)
+    lifetime_counter& operator=(const lifetime_counter&) noexcept
     {
         m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.c_asgn;
@@ -122,7 +122,7 @@ public:
         return *this;
     }
 
-    lifetime_counter(lifetime_counter&&)
+    lifetime_counter(lifetime_counter&&) noexcept
     {
         m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.m_ctr;
@@ -131,7 +131,7 @@ public:
         });
     }
 
-    lifetime_counter& operator=(lifetime_counter&&)
+    lifetime_counter& operator=(lifetime_counter&&) noexcept
     {
         m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
             ++s.m_asgn;
@@ -157,7 +157,7 @@ typename lifetime_counter<T>::lifetime_stats lifetime_counter<T>::m_root_stats;
 
 struct lifetime_counter_sentry {
     const impl::basic_lifetime_stats& stats;
-    lifetime_counter_sentry(const impl::basic_lifetime_stats& s) : stats(s) {}
+    lifetime_counter_sentry(const impl::basic_lifetime_stats& s) noexcept : stats(s) {}
     ~lifetime_counter_sentry() { CHECK(stats.living == 0); }
 };
 

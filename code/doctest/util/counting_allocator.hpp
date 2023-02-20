@@ -16,7 +16,7 @@ namespace util
 class counting_allocator_payload
 {
 public:
-    counting_allocator_payload() = default;
+    counting_allocator_payload() noexcept = default;
     counting_allocator_payload(const counting_allocator_payload&) = delete;
     counting_allocator_payload& operator=(const counting_allocator_payload&) = delete;
     counting_allocator_payload(counting_allocator_payload&&) = delete;
@@ -51,8 +51,8 @@ public:
     {}
 
     // explicit casts
-    super_type& super() { return *this; }
-    const super_type& super() const { return *this; }
+    super_type& super() noexcept { return *this; }
+    const super_type& super() const noexcept { return *this; }
 
     basic_counting_allocator(const basic_counting_allocator&) = default;
     basic_counting_allocator& operator=(const basic_counting_allocator&) = default;
@@ -64,13 +64,13 @@ public:
 
     // rebind
     template <typename U>
-    basic_counting_allocator(const basic_counting_allocator<U, Super>& other)
+    basic_counting_allocator(const basic_counting_allocator<U, Super>& other) noexcept(noexcept(super_type(other.super())))
         : super_type(other.super())
         , m_payload(other.payload_ptr())
     {}
 
-    const counting_allocator_payload& payload() const { return *m_payload; }
-    const std::shared_ptr<counting_allocator_payload>& payload_ptr() const { return m_payload; }
+    const counting_allocator_payload& payload() const noexcept { return *m_payload; }
+    const std::shared_ptr<counting_allocator_payload>& payload_ptr() const noexcept { return m_payload; }
 
     T* allocate(size_t n, const void* = nullptr)
     {
@@ -80,7 +80,7 @@ public:
         return super_type::allocate(n);
     }
 
-    void deallocate(T* p, size_t n)
+    void deallocate(T* p, size_t n) noexcept(noexcept(std::declval<super_type>().deallocate(p, n)))
     {
         auto& pl = *m_payload;
         ++pl.deallocations;
