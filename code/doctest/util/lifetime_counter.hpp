@@ -56,28 +56,28 @@ public:
         }
     }
 
-    lifetime_stats checkpoint() const noexcept 
+    lifetime_stats checkpoint() const noexcept
     {
         lifetime_stats ret;
-        
-		ret.d_ctr = d_ctr.load();
-		ret.c_ctr = c_ctr.load();
-		ret.c_asgn = c_asgn.load();
-		ret.copies = copies.load();
-		ret.m_ctr = m_ctr.load();
-		ret.m_asgn = m_asgn.load();
-		ret.living = living.load();
-		ret.total = total.load();
+
+        ret.d_ctr = d_ctr.load();
+        ret.c_ctr = c_ctr.load();
+        ret.c_asgn = c_asgn.load();
+        ret.copies = copies.load();
+        ret.m_ctr = m_ctr.load();
+        ret.m_asgn = m_asgn.load();
+        ret.living = living.load();
+        ret.total = total.load();
 
         return ret;
-    }    
+    }
 protected:
     basic_lifetime_stats* parent = nullptr;
 };
 }
 
 template <typename Tag>
-class lifetime_counter 
+class lifetime_counter
 {
 public:
     struct lifetime_stats : public impl::basic_lifetime_stats
