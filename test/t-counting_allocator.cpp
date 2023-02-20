@@ -3,8 +3,6 @@
 #include <vector>
 #include <string>
 
-#include <memory_resource>
-
 using doctest::util::counting_allocator;
 using doctest::util::basic_counting_allocator;
 
@@ -47,6 +45,10 @@ TEST_CASE("counting allocator simple")
     svec.push_back("ddddddddddd/eeeeeeeee/ffffffffffff");
 }
 
+#if (__cplusplus >= 201700)
+
+#include <memory_resource>
+
 template <typename T>
 struct pmr_counting_allocator : public basic_counting_allocator<T, std::pmr::polymorphic_allocator>
 {
@@ -62,3 +64,5 @@ TEST_CASE("pmr")
     ivec.reserve(10);
     for (int i = 0; i < 20; ++i) ivec.push_back(i);
 }
+
+#endif
