@@ -48,9 +48,9 @@ public:
     atomic_relaxed_counter<int> total{0}; // total constructed
 
     template <typename F>
-    void for_all(F&& f)
+    static void for_all(basic_lifetime_stats* root, F&& f)
     {
-        for (auto s = this; s; s = s->parent)
+        for (auto s = root; s; s = s->parent)
         {
             f(*s);
         }
@@ -99,7 +99,7 @@ public:
 
     lifetime_counter() noexcept
     {
-        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
+        for_all([](impl::basic_lifetime_stats& s) {
             ++s.d_ctr;
             ++s.living;
             ++s.total;
@@ -108,7 +108,7 @@ public:
 
     lifetime_counter(const lifetime_counter&) noexcept
     {
-        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
+        for_all([](impl::basic_lifetime_stats& s) {
             ++s.c_ctr;
             ++s.copies;
             ++s.living;
@@ -118,7 +118,7 @@ public:
 
     lifetime_counter& operator=(const lifetime_counter&) noexcept
     {
-        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
+        for_all([](impl::basic_lifetime_stats& s) {
             ++s.c_asgn;
             ++s.copies;
         });
@@ -127,7 +127,7 @@ public:
 
     lifetime_counter(lifetime_counter&&) noexcept
     {
-        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
+        for_all([](impl::basic_lifetime_stats& s) {
             ++s.m_ctr;
             ++s.living;
             ++s.total;
@@ -136,19 +136,24 @@ public:
 
     lifetime_counter& operator=(lifetime_counter&&) noexcept
     {
-        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
+        for_all([](impl::basic_lifetime_stats& s) {
             ++s.m_asgn;
         });
         return *this;
     }
     ~lifetime_counter()
     {
-        m_top_stats->for_all([](impl::basic_lifetime_stats& s) {
+        for_all([](impl::basic_lifetime_stats& s) {
             --s.living;
         });
     }
 
 private:
+    template <typename F>
+    void for_all(F&& f) {
+        impl::basic_lifetime_stats::for_all(m_top_stats, std::forward<F>(f));
+    }
+
     static impl::basic_lifetime_stats* m_top_stats;
     static lifetime_stats m_root_stats;
 };

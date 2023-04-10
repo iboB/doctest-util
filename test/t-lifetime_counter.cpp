@@ -69,3 +69,41 @@ TEST_CASE("bare lifetime counter")
     doctest::util::lifetime_stats empty_stats;
     CHECK(lci_root.checkpoint() == empty_stats);
 }
+
+struct foo : public doctest::util::lifetime_counter<foo> {
+    int i = 5;
+};
+
+TEST_CASE("struct lc") {
+    foo::lifetime_stats stats;
+    CHECK(stats.total == 0);
+
+    foo f1;
+    CHECK(stats.total == 1);
+
+    {
+        foo::lifetime_stats lstats;
+        CHECK(lstats.total == 0);
+        CHECK(lstats.d_ctr == 0);
+
+        foo f2;
+        auto f3 = f2;
+
+        CHECK(lstats.total == 2);
+        CHECK(lstats.living == 2);
+        CHECK(lstats.d_ctr == 1);
+        CHECK(lstats.c_ctr == 1);
+    }
+
+    CHECK(stats.total == 3);
+    CHECK(stats.living == 1);
+}
+
+TEST_CASE("struct no stats") {
+    // check nullptr accesses in lifetime counter
+    foo f1;
+    auto f2 = f1;
+    auto f3 = std::move(f2);
+    f3 = f1;
+    f1 = std::move(f2);
+}
