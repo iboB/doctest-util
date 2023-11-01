@@ -1,7 +1,7 @@
 # Copyright (c) Borislav Stanimirov
 # SPDX-License-Identifier: MIT
 #
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 project(doctest-util)
 
@@ -10,7 +10,7 @@ include(./get_cpm.cmake)
 
 #######################################
 # cmake lib
-CPMAddPackage(gh:iboB/icm@1.4.1)
+CPMAddPackage(gh:iboB/icm@1.4.6)
 
 list(APPEND CMAKE_MODULE_PATH
     "${icm_SOURCE_DIR}"
@@ -29,7 +29,7 @@ mark_as_advanced(DOCTEST_UTIL_BUILD_TESTS)
 
 #######################################
 # packages
-CPMAddPackage(gh:iboB/doctest-lib@2.4.9a)
+CPMAddPackage(gh:iboB/doctest-lib@2.4.11)
 
 #######################################
 # c++
