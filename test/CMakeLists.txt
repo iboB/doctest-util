@@ -1,3 +1,6 @@
+# Copyright (c) Borislav Stanimirov
+# SPDX-License-Identifier: MIT
+#
 macro(doctes_util_test test)
     add_doctest_lib_test(${test} doctest-util ${ARGN} LABELS unit-test)
 endmacro()

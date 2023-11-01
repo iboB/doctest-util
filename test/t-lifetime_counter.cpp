@@ -1,3 +1,6 @@
+// Copyright (c) Borislav Stanimirov
+// SPDX-License-Identifier: MIT
+//
 #include <doctest/util/lifetime_counter.hpp>
 
 TEST_CASE("bare lifetime counter")
