@@ -1,6 +1,9 @@
 // Copyright (c) Borislav Stanimirov
 // SPDX-License-Identifier: MIT
 //
+
+// a specialization of StringMaker for container-like types (std::vector, std::list, etc.)
+// include this header to enable it
 #pragma once
 #include <doctest/doctest.h>
 #include <cstddef>
