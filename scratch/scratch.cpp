@@ -1,15 +1,19 @@
 // Copyright (c) Borislav Stanimirov
 // SPDX-License-Identifier: MIT
 //
-
-#include <doctest/util/lifetime_counter.hpp>
+#include <doctest/util/container_to_string.hpp>
+#include <doctest/doctest.h>
 #include <iostream>
+#include <vector>
+#include <list>
 
-int main()
-{
-    using doctest::util::lifetime_counter;
+TEST_CASE("scratch") {
+    std::vector<int> a = {1, 2, 3, 4, 5};
+    std::vector<int> b = {1, 4, 3, 4, 5};
 
-    lifetime_counter<int> lc;
+    CHECK(a == b);
+}
 
-    auto lc2 = lc;
+int main(int argc, char** argv) {
+    return doctest::Context(argc, argv).run();
 }
