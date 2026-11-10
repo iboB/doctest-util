@@ -12,11 +12,17 @@
 namespace doctest {
 
 template <typename T>
-concept ContainerLike = requires(T c) {
-    { c.begin() } -> std::same_as<typename T::iterator>;
-    { c.end() } -> std::same_as<typename T::iterator>;
-    { c.size() } -> std::integral;
-};
+concept ContainerLike =
+    // not printable to ostream otherwise
+    !requires(std::ostream & out, const T & c) {
+        { out << c };
+    } &&
+    // has begin/end and size
+    requires(const T& c) {
+        { c.begin() };
+        { c.end() };
+        { c.size() };
+    };
 
 template <typename T> requires ContainerLike<T>
 struct StringMaker<T> {
