@@ -7,7 +7,6 @@
 #pragma once
 #include <doctest/doctest.h>
 #include <cstddef>
-#include <concepts>
 
 namespace doctest {
 
@@ -32,19 +31,19 @@ struct StringMaker<T> {
         }
 
         String ret = "{";
-        int count = 0;
+        size_t count = 0;
         for (const auto& elem : container) {
-            if (count > 0) {
-                ret += ", ";
-            }
-            ret += doctest::toString(elem);
-            ++count;
             if (count >= 16) {
                 ret += ", [... ";
                 ret += doctest::toString(container.size() - count);
                 ret += " more]";
                 break;
             }
+            if (count > 0) {
+                ret += ", ";
+            }
+            ret += doctest::toString(elem);
+            ++count;
         }
         ret += "}";
         return ret;
